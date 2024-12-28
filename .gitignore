@@ -1,0 +1,55 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+
+# Output of the 'go build' command
+/build/
+/bin/
+/dist/
+
+# Vendor directory
+/vendor/
+
+# Logs
+*.log
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Go workspace files
+*.out
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+
+# Dependency management
+go.sum
+go.work.sum
+
+# Coverage files
+*.cover
+
+# Temporary files
+*.tmp
+*.temp
+
+*.pem
+
+.env
+
+src/balance
+src/application
+src/pointofsales
+src/pos
+src/rules
+src/storefront-nextjs
+src/subscription
+src/turborepo
+src/recommendation

@@ -1,0 +1,123 @@
+apiVersion: 1
+
+datasources:
+  # Loki Datasource for Logs
+  - access: proxy
+    id: 1
+    uid: loki
+    orgId: 1
+    name: Loki
+    type: loki
+    typeName: Loki
+    url: http://loki:3100  # Points to your Loki instance
+    user: ""
+    database: ""
+    basicAuth: false
+    isDefault: false
+    editable: true
+    jsonData:
+      derivedFields:
+        - name: TraceID
+          regex: '\"trace_id\":\"(\w+)\"'
+          url: '$${__value.raw}'
+          datasourceUid: tempo
+          internalLink: true
+          link:
+            label: "TraceID"
+            title: "View Trace"
+            url: "/d/trace-id/${__value.raw}"
+
+        - name: Level
+          regex: '\"level\":\"(info|warn|error|debug)\"'
+          internalLink: false
+
+        - name: Method
+          regex: '\"http_method\":\"(\w+)\"'
+          internalLink: false
+
+    readOnly: false
+
+  # Prometheus Datasource for Metrics
+  - access: proxy
+    id: 2
+    uid: prometheus
+    orgId: 1
+    name: Prometheus
+    type: prometheus
+    typeName: Prometheus
+    url: http://prometheus:9090  # Points to your Prometheus instance
+    user: ""
+    database: ""
+    basicAuth: false
+    isDefault: false
+    jsonData:
+      httpMethod: POST
+    readOnly: false
+
+  # Tempo Datasource for Traces
+  - id: 3
+    uid: tempo
+    name: Tempo
+    type: tempo
+    access: proxy
+    orgId: 1
+    url: http://tempo:3200  # Points to your Tempo instance
+    basicAuth: false
+    isDefault: true
+    version: 1
+    editable: true
+    apiVersion: 1
+    jsonData:
+      # Trace to Logs v2 Configuration
+      tracesToLogsV2:
+        datasourceUid: 'loki'  # Reference to Loki datasource UID
+        spanStartTimeShift: '-1h'
+        spanEndTimeShift: '1h'
+        tags: ['job', 'instance', 'container']
+        filterByTraceID: true
+        filterBySpanID: true
+        customQuery: true
+        query: 'method="$${__span.tags.method}"'  # Example custom query
+
+      # Trace to Metrics Configuration
+      tracesToMetrics:
+        datasourceUid: 'prometheus'  # Reference to Prometheus datasource UID
+        spanStartTimeShift: '-1h'
+        spanEndTimeShift: '1h'
+        tags:
+          - { key: 'service.name', value: 'service' }
+          - { key: 'job' }
+        queries:
+          - name: 'Sample query'
+            query: 'sum(rate(traces_spanmetrics_latency_bucket{$$__tags}[5m]))'  # Example query for metrics
+
+      # Trace to Profiles Configuration
+      tracesToProfiles:
+        datasourceUid: 'grafana-pyroscope-datasource'  # Reference to Pyroscope or any profiling datasource UID
+        tags: ['job', 'instance', 'container']
+        profileTypeId: 'process_cpu:cpu:nanoseconds:cpu:nanoseconds'
+        customQuery: true
+        query: 'method="$${__span.tags.method}"'
+
+      # Service Map Configuration
+      serviceMap:
+        datasourceUid: 'prometheus'  # Reference to Prometheus datasource for service map
+
+      # Node Graph Configuration
+      nodeGraph:
+        enabled: true  # Enable Node Graph visualization
+
+      # Search Configuration
+      search:
+        hide: false  # Show/hide search functionality
+
+      # Trace Query Configuration
+      traceQuery:
+        timeShiftEnabled: true
+        spanStartTimeShift: '1h'
+        spanEndTimeShift: '-1h'
+
+      # Span Bar Configuration
+      spanBar:
+        type: 'Tag'
+        tag: 'http.path'  # Use `http.path` as the tag for span bar

@@ -1,0 +1,35 @@
+# Ignore node_modules as they will be installed during the build process
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Ignore local environment files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Ignore the output of the Next.js build
+.next
+out
+
+# Ignore test files and coverage reports
+__tests__
+coverage
+
+# Ignore logs
+logs
+*.log
+
+# Ignore IDE/editor config files and directories
+.vscode/
+.idea/
+.DS_Store
+
+# Ignore Git files
+.git
+.gitignore
+
+# Ignore Dockerfile and docker-compose.yml to avoid copying them into the image
+Dockerfile
+docker-compose.yml

@@ -1,0 +1,23 @@
+# Exclude Git and other VCS directories
+.git
+.gitignore
+
+# Exclude Go specific directories and files
+/vendor/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+
+# Exclude logs and temporary files
+*.log
+*.tmp
+*.temp
+
+# Exclude build directories
+/build/
+/bin/

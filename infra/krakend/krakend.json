@@ -1,0 +1,585 @@
+{
+  "$schema": "https://www.krakend.io/schema/krakend.json",
+  "version": 3,
+  "name": "API Gateway",
+  "timeout": "60s",
+  "extra_config": {
+    "telemetry/logging": {
+      "level": "INFO",
+      "format": "logstash",
+      "prefix": "smallbiznis",
+      "syslog": false,
+      "stdout": false
+    },
+    "telemetry/metrics": {
+      "collection_time": "30s",
+      "listen_address": ":8090"
+    },
+    "telemetry/opentelemetry": {
+      "service_name": "krakend_ce",
+      "service_version": "commit-sha",
+      "exporters": {
+        "otlp": [
+          {
+            "name": "local_otlp",
+            "host": "otelcol",
+            "port": 4317
+          }
+        ]
+      }
+    },
+    "router": {
+      "disable_gzip": false,
+      "disable_access_log": true,
+      "hide_version_header": true
+    },
+    "auth/validator": {
+      "shared_cache_duration": 900,
+      "@comment": "Enable a JWK shared cache amongst all endpoints of 15 minutes"
+    }
+  },
+  "output_encoding": "no-op",
+  "port": 8084,
+  "endpoints": [
+    {
+      "endpoint": "/v1/staffs",
+      "method": "POST",
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/staffs",
+          "sd": "static",
+          "host": [
+            "http://pos:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/staffs",
+      "method": "GET",
+      "input_query_strings": ["*"],
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/staffs",
+          "sd": "static",
+          "host": [
+            "http://pos:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/staffs/{staff_id}",
+      "method": "PUT",
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/staffs/{staff_id}",
+          "sd": "static",
+          "host": [
+            "http://pos:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/staffs/{staff_id}",
+      "method": "DELETE",
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/staffs/{staff_id}",
+          "sd": "static",
+          "host": [
+            "http://pos:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/passcode/lookup",
+      "method": "GET",
+      "input_query_strings": ["*"],
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/passcode/lookup",
+          "sd": "static",
+          "host": [
+            "http://pos:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/passcode/verify",
+      "method": "POST",
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/passcode/verify",
+          "sd": "static",
+          "host": [
+            "http://pos:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/passcode/register",
+      "method": "POST",
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/passcode/register",
+          "sd": "static",
+          "host": [
+            "http://pos:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/billingportal",
+      "method": "POST",
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/billingportal",
+          "sd": "static",
+          "host": [
+            "http://organization:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/subscription/{id}",
+      "method": "GET",
+      "input_query_strings": ["*"],
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/subscription/{id}",
+          "sd": "static",
+          "host": [
+            "http://organization:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/balances",
+      "method": "GET",
+      "input_query_strings": ["*"],
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/balances",
+          "sd": "static",
+          "host": [
+            "http://balance:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/shipping_rate",
+      "method": "GET",
+      "input_query_strings": ["*"],
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/shipping_rate",
+          "sd": "static",
+          "host": [
+            "http://organization:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/tax",
+      "method": "GET",
+      "input_query_strings": ["*"],
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/tax",
+          "sd": "static",
+          "host": [
+            "http://organization:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/address",
+      "method": "GET",
+      "input_query_strings": ["*"],
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/address",
+          "sd": "static",
+          "host": [
+            "http://customer:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/address",
+      "method": "POST",
+      "input_query_strings": ["*"],
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/address",
+          "sd": "static",
+          "host": [
+            "http://customer:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/customers",
+      "method": "GET",
+      "input_query_strings": ["*"],
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/customers",
+          "sd": "static",
+          "host": [
+            "http://customer:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/customers",
+      "method": "POST",
+      "input_query_strings": ["*"],
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/customers",
+          "sd": "static",
+          "host": [
+            "http://customer:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/orders",
+      "method": "POST",
+      "input_query_strings": ["*"],
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/orders",
+          "sd": "static",
+          "host": [
+            "http://transaction:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/orders",
+      "method": "GET",
+      "input_query_strings": ["*"],
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/orders",
+          "sd": "static",
+          "host": [
+            "http://transaction:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/inventories",
+      "method": "GET",
+      "input_query_strings": ["*"],
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/inventories",
+          "sd": "static",
+          "host": [
+            "http://inventory:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/variants",
+      "method": "GET",
+      "input_query_strings": ["*"],
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/variants",
+          "sd": "static",
+          "host": [
+            "http://item:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/variants/{variant_id}",
+      "method": "GET",
+      "input_query_strings": ["*"],
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/variants/{variant_id}",
+          "sd": "static",
+          "host": [
+            "http://item:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/items",
+      "method": "POST",
+      "input_query_strings": ["*"],
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/items",
+          "sd": "static",
+          "host": [
+            "http://item:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/items/{item_id}",
+      "method": "GET",
+      "input_query_strings": ["*"],
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/items/{item_id}",
+          "sd": "static",
+          "host": [
+            "http://item:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/items",
+      "method": "GET",
+      "input_query_strings": ["*"],
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/items",
+          "sd": "static",
+          "host": [
+            "http://item:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/users",
+      "method": "GET",
+      "input_query_strings": ["*"],
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/users",
+          "sd": "static",
+          "host": [
+            "http://user:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/users/{user_id}",
+      "method": "GET",
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/users/{user_id}",
+          "sd": "static",
+          "host": [
+            "http://user:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/users",
+      "method": "POST",
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/users",
+          "sd": "static",
+          "host": [
+            "http://user:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/users/{user_id}",
+      "method": "PUT",
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/users/{user_id}",
+          "sd": "static",
+          "host": [
+            "http://user:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/members/{member_id}",
+      "method": "PUT",
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/members/{member_id}",
+          "sd": "static",
+          "host": [
+            "http://member:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/members/{member_id}",
+      "method": "GET",
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/members/{member_id}",
+          "sd": "static",
+          "host": [
+            "http://member:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/members",
+      "method": "POST",
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/members",
+          "sd": "static",
+          "host": [
+            "http://member:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/members",
+      "method": "GET",
+      "input_query_strings": ["*"],
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/members",
+          "sd": "static",
+          "host": [
+            "http://member:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/locations",
+      "method": "GET",
+      "input_query_strings": ["*"],
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/locations",
+          "sd": "static",
+          "host": [
+            "http://organization:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/organizations",
+      "method": "GET",
+      "input_query_strings": ["*"],
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/organizations",
+          "sd": "static",
+          "host": [
+            "http://organization:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/organizations",
+      "method": "POST",
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/organizations",
+          "sd": "static",
+          "host": [
+            "http://organization:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/organizations/{organization_id}",
+      "method": "GET",
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/organizations/{organization_id}",
+          "sd": "static",
+          "host": [
+            "http://organization:4318"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/organizations/{organization_id}",
+      "method": "DELETE",
+      "input_headers": ["*"],
+      "backend": [
+        {
+          "url_pattern": "/v1/organizations/{organization_id}",
+          "sd": "static",
+          "host": [
+            "http://organization:4318"
+          ]
+        }
+      ]
+    }
+  ]
+}

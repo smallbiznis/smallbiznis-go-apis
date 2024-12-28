@@ -1,0 +1,105 @@
+# Copyright The OpenTelemetry Authors
+# SPDX-License-Identifier: Apache-2.0
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+        cors:
+          allowed_origins:
+            - http://*
+            - https://*
+          allowed_headers:
+            - x-faro-session-id
+
+  prometheus:
+    config:
+      global:
+        scrape_interval: 15s
+      scrape_configs:
+        - job_name: "otel-collector"
+          static_configs:
+            - targets: ['0.0.0.0:8888']
+
+  jaeger:
+    protocols:
+      grpc:
+      thrift_binary:
+      thrift_compact:
+      thrift_http:
+
+  # postgresql:
+  #   endpoint: postgres:5432
+  #   # transport: tcp
+  #   username: postgres
+  #   password: '35411231'
+  #   databases:
+  #       - postgres
+  #   tls:
+  #       insecure: true
+
+  hostmetrics:
+    scrapers:
+      cpu:
+      disk:
+      paging:
+      load:
+      process:
+      processes:
+      filesystem:
+      network:
+      memory:
+
+exporters:
+  debug:
+
+  otlp/tempo:
+    endpoint: tempo:4317
+    headers:
+      x-scope-orgid: "1"
+    tls:
+      insecure: true
+
+  prometheusremotewrite:
+    endpoint: http://prometheus:9090/api/v1/write
+    tls:
+      insecure: true
+
+  otlphttp/loki:
+    endpoint: http://loki:3100/otlp/v1/logs
+
+processors:
+  batch:
+    send_batch_size: 1000
+    timeout: 10s
+  memory_limiter:
+    # 80% of maximum memory up to 2G
+    limit_mib: 400
+    # 25% of limit up to 2G
+    spike_limit_mib: 100
+    check_interval: 5s
+
+connectors:
+  spanmetrics:
+
+extensions:
+    zpages: {}
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp/tempo, spanmetrics]
+
+    metrics:
+      receivers: [otlp, prometheus, spanmetrics]
+      processors: [batch]
+      exporters: [prometheusremotewrite]
+
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlphttp/loki, debug]

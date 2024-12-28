@@ -1,0 +1,300 @@
+
+services:
+
+  minio:
+    image: quay.io/minio/minio
+    ports:
+      - 9000:9000
+      - 9001:9001
+    env_file:
+      - .env
+    volumes:
+      - 'minio-data:/minio/data'
+    command: server /minio/data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  postgres:
+    image: postgres:latest
+    restart: always
+    ports:
+      - "5433:5432"
+    env_file:
+      - .env
+    volumes:
+      - ./initdb.sh:/docker-entrypoint-initdb.d/initdb.sh
+      - postgres-data:/var/lib/postgresql/data
+
+  krakend_ce:
+    # The :watch image restarts the service automatically when the configuration files change.
+    # Do not use this image in production, it's meant to speed up your testing and development.
+    image: devopsfaith/krakend:watch
+    volumes:
+      - ./infra/krakend:/etc/krakend
+    env_file:
+      - .env
+    ports:
+      - "1234:1234"
+      - "8084:8084"
+      - "8090:8090"
+    command: ["run", "-d", "-c", "/etc/krakend/krakend.json"]
+
+  oauth2:
+    build: ./src/oauth2svc
+    image: 127.0.0.1:5001/oauth2
+    env_file:
+      - .env
+    environment:
+      - DB_NAME=oauth2
+    ports:
+      - 8080:8080
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+    depends_on:
+      - postgres
+
+  inventory:
+    build: ./src/inventory
+    image: 127.0.0.1:5001/inventory
+    ports:
+      - '4317'
+      - '4318'
+    env_file:
+      - .env
+    environment:
+      - GRPC_PORT=:4317
+      - SERVICE_NAME=inventory
+      - SERVICE_VERSION=1.0.0
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+    depends_on:
+      - postgres
+
+  item:
+    build: ./src/item
+    image: 127.0.0.1:5001/item
+    ports:
+      - '4317'
+      - '4318'
+    env_file:
+      - .env
+    environment:
+      - GRPC_PORT=:4317
+      - SERVICE_NAME=item
+      - SERVICE_VERSION=1.0.0
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+    depends_on:
+      - postgres
+
+  organization:
+    build: ./src/organization
+    image: 127.0.0.1:5001/organization
+    ports:
+      - '4317'
+      - '4318'
+    env_file:
+      - .env
+    environment:
+      - GRPC_PORT=:4317
+      - SERVICE_NAME=organization
+      - SERVICE_VERSION=1.0.0
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+    depends_on:
+      - postgres
+
+  member:
+    build: ./src/members
+    image: 127.0.0.1:5001/member
+    ports:
+      - '4317'
+      - '4318'
+    env_file:
+      - .env
+    environment:
+      - GRPC_PORT=:4317
+      - SERVICE_NAME=user
+      - SERVICE_VERSION=1.0.0
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+    depends_on:
+      - postgres
+
+  pos:
+    build: ./src/pos
+    image: 127.0.0.1:5001/pos
+    ports:
+      - '4317'
+      - '4318'
+    env_file:
+      - .env
+    environment:
+      - GRPC_PORT=:4317
+      - SERVICE_NAME=user
+      - SERVICE_VERSION=1.0.0
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+    depends_on:
+      - postgres
+
+  application:
+    build: ./src/application
+    image: 127.0.0.1:5001/application
+    ports:
+      - '4317'
+      - '4318'
+    env_file:
+      - .env
+    environment:
+      - GRPC_PORT=:4317
+      - SERVICE_NAME=application
+      - SERVICE_VERSION=1.0.0
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+    depends_on:
+      - postgres
+
+  user:
+    build: ./src/user
+    image: 127.0.0.1:5001/user
+    ports:
+      - '4317'
+      - '4318'
+    env_file:
+      - .env
+    environment:
+      - GRPC_PORT=:4317
+      - SERVICE_NAME=user
+      - SERVICE_VERSION=1.0.0
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+    depends_on:
+      - postgres
+
+  transaction:
+    build: ./src/transaction
+    image: 127.0.0.1:5001/transaction
+    ports:
+      - '4317'
+      - '4318'
+    env_file:
+      - .env
+    environment:
+      - GRPC_PORT=:4317
+      - SERVICE_NAME=transaction
+      - SERVICE_VERSION=1.0.0
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+    depends_on:
+      - postgres
+
+  customer:
+    build: ./src/customer
+    image: 127.0.0.1:5001/customer
+    ports:
+      - '4317'
+      - '4318'
+    env_file:
+      - .env
+    environment:
+      - GRPC_PORT=:4317
+      - SERVICE_NAME=customer
+      - SERVICE_VERSION=1.0.0
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+    depends_on:
+      - postgres
+
+  storage:
+    build: ./src/storagesvc
+    image: 127.0.0.1:5001/storage
+    ports:
+      - '4318'
+    env_file:
+      - .env
+    environment:
+      - SERVICE_NAME=storage
+      - SERVICE_VERSION=1.0.0
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+    depends_on:
+      - minio
+
+  casbin:
+    image: casbin/casbin-server
+    ports:
+      - '50051:50051'
+    env_file:
+      - .env
+    volumes:
+      - casbin-data:/data
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+
+  registry:
+    image: registry:2
+    ports:
+    - "5001:5000"
+    environment:
+      REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: /data
+    volumes:
+      - registry-data:/data
+
+  tensorflow:
+    image: tensorflow/tensorflow:latest-jupyter
+    ports:
+      - 8888:8888
+
+volumes:
+  postgres-data:
+    driver: local
+  minio-data:
+    driver: local
+  registry-data:
+    driver: local
+  casbin-data:
+    driver: local
+
+networks:
+  public:
+    external: true
